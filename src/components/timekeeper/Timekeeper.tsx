@@ -1,10 +1,12 @@
 import './timekeeper.scss';
 import * as React from 'react';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 
 export interface ITimekeeperProps {}
 
 export interface ITimekeeperState {
   maxTime: number;
+  maxTimeDialogIsOpen: boolean;
   timeLeft: number;
   timeLeftAsText: string;
   remainingCircleDasharray: string;
@@ -22,6 +24,7 @@ const FULL_DASH_ARRAY = 283;
 
 const INITIAL_STATE: ITimekeeperState = {
   maxTime: 120,
+  maxTimeDialogIsOpen: false,
   timeLeft: 120,
   timeLeftAsText: '2:00',
   circleClassName: 'timekeeper-circle',
@@ -36,13 +39,21 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
     this.state = INITIAL_STATE;
   }
 
+  private handleOpenDialogEvent = () => {
+    this.setState({ maxTimeDialogIsOpen: true });
+  };
+
+  private handleCloseDialogEvent = () => {
+    this.setState({ maxTimeDialogIsOpen: false });
+  };
+
   public render() {
     return (
       <div className='timekeeper-container'>
         <div className='timekeeper-background'>
           <div className='timekeeper-forehand'>
             <h1 className='timekeeper-header'>Time Keeper</h1>
-            <div className={this.state.circleClassName}>
+            <div className={this.state.circleClassName} onClick={this.handleOpenDialogEvent}>
               <svg className='timekeeper-svg' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'>
                 <g className='timekeeper-svg-circle'>
                   <circle className='timekeeper-svg-circle-full-path' cx='50' cy='50' r='45'></circle>
@@ -73,6 +84,28 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
             </div>
           </div>
         </div>
+
+        <Dialog
+          open={this.state.maxTimeDialogIsOpen}
+          onClose={this.handleCloseDialogEvent}
+          aria-labelledby='alert-dialog-title'
+          aria-describedby='alert-dialog-description'
+        >
+          <DialogTitle id='alert-dialog-title'>{"Use Google's location service?"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id='alert-dialog-description'>
+              Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleCloseDialogEvent} color='primary'>
+              Disagree
+            </Button>
+            <Button onClick={this.handleCloseDialogEvent} color='primary' autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     );
   }

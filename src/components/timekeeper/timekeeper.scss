@@ -29,6 +29,7 @@
     width: var(--circle-size);
     height: var(--circle-size);
     position: relative;
+    cursor: pointer;
   }
 
   & .timekeeper-svg {
