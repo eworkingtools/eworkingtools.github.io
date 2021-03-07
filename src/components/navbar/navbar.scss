@@ -7,12 +7,10 @@
   --nav-item-background-color-on-hover-state: var(--color-scale-gray-4);
 }
 .navbar-container {
-  background-color: var(--navbar-container-background-color);
-  border-bottom: var(--container-border-width) solid var(--navbar-container-border-color);
-
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  box-shadow: rgba(13, 43, 90, 0.04) 0px 4px 4px 0px, rgba(13, 43, 90, 0.08) 0px 8px 32px 0px;
 
   & .website-logo {
     height: 2.5rem;
@@ -21,9 +19,10 @@
   }
 
   & .website-name {
-    color: var(--website-name-color);
-    font-size: 1.6rem;
-    font-weight: bold;
+    color: #2a2b2d;
+    text-transform: uppercase;
+    font-size: 1.7rem;
+    font-weight: 700;
     margin: 0 2rem 0 1rem;
     transition: var(--transition);
     transition-property: color;

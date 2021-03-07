@@ -8,6 +8,7 @@ export interface ITimekeeperState {
   timeLeft: number;
   timeLeftAsText: string;
   remainingCircleDasharray: string;
+  circleClassName: string;
   status: ETimekeeperStatus;
   interval: NodeJS.Timeout;
 }
@@ -23,6 +24,7 @@ const INITIAL_STATE: ITimekeeperState = {
   maxTime: 120,
   timeLeft: 120,
   timeLeftAsText: '2:00',
+  circleClassName: 'timekeeper-circle',
   remainingCircleDasharray: `${FULL_DASH_ARRAY} ${FULL_DASH_ARRAY}`,
   status: ETimekeeperStatus.PAUSED,
   interval: null,
@@ -40,7 +42,7 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
         <div className='timekeeper-background'>
           <div className='timekeeper-forehand'>
             <h1 className='timekeeper-header'>Time Keeper</h1>
-            <div className='timekeeper-circle'>
+            <div className={this.state.circleClassName}>
               <svg className='timekeeper-svg' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'>
                 <g className='timekeeper-svg-circle'>
                   <circle className='timekeeper-svg-circle-full-path' cx='50' cy='50' r='45'></circle>
@@ -82,18 +84,20 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
   continueTimer() {
     const that = this;
     const interval = setInterval(() => {
-      that.setState((previousState) => ({
-        timeLeft: previousState.timeLeft - 1,
-      }));
+      this.decreaseTimeLeft(that);
       that.formatTimeLeft();
       that.updateCircleStrokeDasharray();
-      // if (that.timeLeft == 0) {
-      //   clearInterval(that.timekeeperInterval);
-      //   this.setState({ ...this.state, state: ETimekeeperState.PAUSED });
-      //   that.timeLeft = that.maxTime;
-      // }
+      if (that.state.timeLeft == 0) {
+        this.setState({ circleClassName: 'timekeeper-circle timekeeper-circle-with-time-left-equals-to-zero' });
+      }
     }, 1000);
     this.setState({ status: ETimekeeperStatus.RUNNING, interval });
+  }
+
+  private decreaseTimeLeft(that: this) {
+    that.setState((previousState) => ({
+      timeLeft: previousState.timeLeft - 1,
+    }));
   }
 
   pauseTimer() {
@@ -103,7 +107,7 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
 
   resetTimer() {
     clearInterval(this.state.interval);
-    this.setState({ timeLeft: this.state.maxTime });
+    this.setState({ timeLeft: this.state.maxTime, circleClassName: 'timekeeper-circle' });
     this.continueTimer();
   }
 
@@ -122,8 +126,9 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
 
   private calculateTimeFraction(): number {
     if (this.state.timeLeft === 0) return 0;
-    const rawTimeFraction = Math.abs(this.state.timeLeft) / this.state.maxTime;
-    const res = rawTimeFraction - (1 / this.state.maxTime) * (1 - rawTimeFraction);
+    const maxTime = this.state.timeLeft < 0 ? 200 : this.state.maxTime;
+    const rawTimeFraction = Math.abs(this.state.timeLeft) / maxTime;
+    const res = rawTimeFraction - (1 / maxTime) * (1 - rawTimeFraction);
     return res;
   }
 }

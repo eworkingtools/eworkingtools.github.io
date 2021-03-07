@@ -17,7 +17,6 @@ export default class Navbar extends React.Component<INavbarProps, INavbarState> 
       <div className='navbar-container'>
         <img className='website-logo' src='/logo.png'></img>
         <span className='website-name'>E-Working Tools</span>
-        <span className='nav-item'>TimeKeeper</span>
       </div>
     );
   }
