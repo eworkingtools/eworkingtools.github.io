@@ -1,0 +1,42 @@
+:root {
+  --icon-color: var(--color-scale-gray-1);
+  --section-title-border-color: var(--color-scale-gray-4);
+}
+
+*,
+*::after,
+*::before {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+// ::-webkit-scrollbar {
+//   display: none;
+// }
+
+html {
+  font-size: var(--font-size);
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family);
+  color: var(--body-color);
+}
+
+.sidebar-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--section-title-border-color);
+}
+
+.hide {
+  display: none;
+}
+
+.pointer {
+  cursor: pointer;
+}

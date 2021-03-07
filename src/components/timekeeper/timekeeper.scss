@@ -1,0 +1,67 @@
+:root {
+}
+.timekeeper-container {
+  --circle-size: 30rem;
+  width: var(--circle-size);
+  height: var(--circle-size);
+  margin: 10rem auto;
+  position: relative;
+
+  & .timekeeper-svg {
+    transform: scaleX(-1);
+  }
+
+  & .timekeeper-circle {
+    fill: none;
+    stroke: none;
+  }
+
+  & .timekeeper-circle-full-path {
+    stroke-width: 0.5rem;
+    stroke: rgb(230, 230, 230);
+  }
+
+  & .timekeeper-circle-remaining-path {
+    stroke-width: 0.5rem;
+    stroke-linecap: round;
+    transform: rotate(90deg);
+    transform-origin: center;
+    transition: 0.5s linear all;
+    fill-rule: nonzero;
+    stroke: currentColor;
+    color: rgb(40, 152, 216);
+  }
+
+  & .timekeeper-label {
+    width: var(--circle-size);
+    height: var(--circle-size);
+    position: absolute;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 100;
+    font-size: 75px;
+  }
+
+  & .timekeeper-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  & .timekeeper-buttons .iconify {
+    font-size: 4.7rem;
+    border-radius: 100rem;
+    background: rgb(40, 152, 216);
+    color: white;
+    padding: 0.8rem;
+    transition: var(--transition);
+    transition-property: opacity;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
