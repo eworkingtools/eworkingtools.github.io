@@ -4,28 +4,34 @@ import * as React from 'react';
 export interface ITimekeeperProps {}
 
 export interface ITimekeeperState {
-  state: ETimekeeperState;
+  maxTime: number;
+  timeLeft: number;
+  timeLeftAsText: string;
+  remainingCircleDasharray: string;
+  status: ETimekeeperStatus;
+  interval: NodeJS.Timeout;
 }
 
-export enum ETimekeeperState {
+export enum ETimekeeperStatus {
   RUNNING,
   PAUSED,
 }
 
-export default class Timekeeper extends React.Component<ITimekeeperProps, ITimekeeperState> {
-  private fullDashArray = 283;
-  private maxTime = 60;
-  private timeLeft: number = this.maxTime;
-  private timeLeftHtmlElement: HTMLElement;
-  private timekeeperCircleRemainingPath: SVGPathElement;
-  private timekeeperInterval: NodeJS.Timeout;
+const FULL_DASH_ARRAY = 283;
 
+const INITIAL_STATE: ITimekeeperState = {
+  maxTime: 120,
+  timeLeft: 120,
+  timeLeftAsText: '2:00',
+  remainingCircleDasharray: `${FULL_DASH_ARRAY} ${FULL_DASH_ARRAY}`,
+  status: ETimekeeperStatus.PAUSED,
+  interval: null,
+};
+
+export default class Timekeeper extends React.Component<ITimekeeperProps, ITimekeeperState> {
   constructor(props: ITimekeeperProps) {
     super(props);
-
-    this.state = {
-      state: ETimekeeperState.PAUSED,
-    };
+    this.state = INITIAL_STATE;
   }
 
   public render() {
@@ -35,8 +41,8 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
           <g className='timekeeper-circle'>
             <circle className='timekeeper-circle-full-path' cx='50' cy='50' r='45'></circle>
             <path
-              ref={(ref) => (this.timekeeperCircleRemainingPath = ref)}
               className='timekeeper-circle-remaining-path'
+              stroke-dasharray={this.state.remainingCircleDasharray}
               d='
                   M 50, 50
                   m -45, 0
@@ -46,12 +52,12 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
             ></path>
           </g>
         </svg>
-        <span ref={(ref) => (this.timeLeftHtmlElement = ref)} className='timekeeper-label'></span>
+        <span className='timekeeper-label'>{this.state.timeLeftAsText}</span>
         <div className='timekeeper-buttons'>
-          <span className={this.state.state == ETimekeeperState.RUNNING ? 'hide' : ''} onClick={() => this.continueTimer()}>
+          <span className={this.state.status == ETimekeeperStatus.RUNNING ? 'hide' : ''} onClick={() => this.continueTimer()}>
             <span className='iconify pointer' data-icon='fluent:play-48-regular' data-inline='false'></span>
           </span>
-          <span className={this.state.state == ETimekeeperState.PAUSED ? 'hide' : ''} onClick={() => this.pauseTimer()}>
+          <span className={this.state.status == ETimekeeperStatus.PAUSED ? 'hide' : ''} onClick={() => this.pauseTimer()}>
             <span className='iconify pointer' data-icon='akar-icons:pause' data-inline='false'></span>
           </span>
           <span onClick={() => this.resetTimer()}>
@@ -68,44 +74,49 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
 
   continueTimer() {
     const that = this;
-    this.setState({ ...this.state, state: ETimekeeperState.RUNNING });
-    this.timekeeperInterval = setInterval(() => {
-      that.timeLeft -= 0.5;
+    const interval = setInterval(() => {
+      that.setState((previousState) => ({
+        timeLeft: previousState.timeLeft - 1,
+      }));
       that.formatTimeLeft();
       that.updateCircleStrokeDasharray();
-      if (that.timeLeft == 0) {
-        clearInterval(that.timekeeperInterval);
-        this.setState({ ...this.state, state: ETimekeeperState.PAUSED });
-        that.timeLeft = that.maxTime;
-      }
-    }, 500);
+      // if (that.timeLeft == 0) {
+      //   clearInterval(that.timekeeperInterval);
+      //   this.setState({ ...this.state, state: ETimekeeperState.PAUSED });
+      //   that.timeLeft = that.maxTime;
+      // }
+    }, 1000);
+    this.setState({ status: ETimekeeperStatus.RUNNING, interval });
   }
 
   pauseTimer() {
-    this.setState({ ...this.state, state: ETimekeeperState.PAUSED });
-    clearInterval(this.timekeeperInterval);
+    this.setState({ status: ETimekeeperStatus.PAUSED });
+    clearInterval(this.state.interval);
   }
 
   resetTimer() {
-    clearInterval(this.timekeeperInterval);
-    this.timeLeft = this.maxTime;
+    clearInterval(this.state.interval);
+    this.setState({ timeLeft: this.state.maxTime });
     this.continueTimer();
   }
 
   private formatTimeLeft() {
-    const minutes = Math.floor(this.timeLeft / 60);
-    let seconds = Math.floor(this.timeLeft % 60);
-    let secondsAsString = seconds < 10 ? `0${seconds}` : `${seconds}`;
-    this.timeLeftHtmlElement.innerHTML = `${minutes}:${secondsAsString}`;
+    const minutes = Math.floor(Math.abs(this.state.timeLeft) / 60);
+    const seconds = Math.floor(Math.abs(this.state.timeLeft) % 60);
+    const secondsAsString = seconds < 10 ? `0${seconds}` : `${seconds}`;
+    const sign = this.state.timeLeft < 0 ? '+' : '';
+    this.setState({ timeLeftAsText: `${sign}${minutes}:${secondsAsString}` });
   }
 
   private updateCircleStrokeDasharray() {
-    const circleDasharray = `${(this.calculateTimeFraction() * this.fullDashArray).toFixed(0)} 283`;
-    this.timekeeperCircleRemainingPath.setAttribute('stroke-dasharray', circleDasharray);
+    const remainingCircleDasharray = `${(this.calculateTimeFraction() * FULL_DASH_ARRAY).toFixed(0)} ${FULL_DASH_ARRAY}`;
+    this.setState({ remainingCircleDasharray });
   }
 
   private calculateTimeFraction(): number {
-    const rawTimeFraction = this.timeLeft / this.maxTime;
-    return rawTimeFraction - (1 / this.maxTime) * (1 - rawTimeFraction);
+    if (this.state.timeLeft === 0) return 0;
+    const rawTimeFraction = Math.abs(this.state.timeLeft) / this.state.maxTime;
+    const res = rawTimeFraction - (1 / this.state.maxTime) * (1 - rawTimeFraction);
+    return res;
   }
 }
