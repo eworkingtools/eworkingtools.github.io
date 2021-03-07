@@ -1,14 +1,13 @@
 import './timekeeper.scss';
 import * as React from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
+import { Period } from '../../models/Period';
+import TimekeeperPeriodDialog from '../timekeeper-maxtime-dialog/TimekeeperPeriodDialog';
 
 export interface ITimekeeperProps {}
 
 export interface ITimekeeperState {
-  maxTime: number;
-  maxTimeDialogIsOpen: boolean;
-  timeLeft: number;
-  timeLeftAsText: string;
+  maxPeriod: Period;
+  periodLeft: Period;
   remainingCircleDasharray: string;
   circleClassName: string;
   status: ETimekeeperStatus;
@@ -20,32 +19,24 @@ export enum ETimekeeperStatus {
   PAUSED,
 }
 
-const FULL_DASH_ARRAY = 283;
+const CIRCLE_FULL_DASH_ARRAY = 283;
 
 const INITIAL_STATE: ITimekeeperState = {
-  maxTime: 120,
-  maxTimeDialogIsOpen: false,
-  timeLeft: 120,
-  timeLeftAsText: '2:00',
+  maxPeriod: new Period(120),
+  periodLeft: new Period(120),
   circleClassName: 'timekeeper-circle',
-  remainingCircleDasharray: `${FULL_DASH_ARRAY} ${FULL_DASH_ARRAY}`,
+  remainingCircleDasharray: `${CIRCLE_FULL_DASH_ARRAY} ${CIRCLE_FULL_DASH_ARRAY}`,
   status: ETimekeeperStatus.PAUSED,
   interval: null,
 };
 
 export default class Timekeeper extends React.Component<ITimekeeperProps, ITimekeeperState> {
+  private maxPeriodDialog: TimekeeperPeriodDialog;
+
   constructor(props: ITimekeeperProps) {
     super(props);
     this.state = INITIAL_STATE;
   }
-
-  private handleOpenDialogEvent = () => {
-    this.setState({ maxTimeDialogIsOpen: true });
-  };
-
-  private handleCloseDialogEvent = () => {
-    this.setState({ maxTimeDialogIsOpen: false });
-  };
 
   public render() {
     return (
@@ -53,7 +44,7 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
         <div className='timekeeper-background'>
           <div className='timekeeper-forehand'>
             <h1 className='timekeeper-header'>Time Keeper</h1>
-            <div className={this.state.circleClassName} onClick={this.handleOpenDialogEvent}>
+            <div className={this.state.circleClassName} onClick={this.openMaxPeriodDialog}>
               <svg className='timekeeper-svg' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'>
                 <g className='timekeeper-svg-circle'>
                   <circle className='timekeeper-svg-circle-full-path' cx='50' cy='50' r='45'></circle>
@@ -69,7 +60,7 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
                   ></path>
                 </g>
               </svg>
-              <span className='timekeeper-circle-label'>{this.state.timeLeftAsText}</span>
+              <span className='timekeeper-circle-label'>{this.state.periodLeft.toString()}</span>
             </div>
             <div className='timekeeper-buttons'>
               <span className={this.state.status == ETimekeeperStatus.RUNNING ? 'hide' : ''} onClick={() => this.continueTimer()}>
@@ -84,52 +75,30 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
             </div>
           </div>
         </div>
-
-        <Dialog
-          open={this.state.maxTimeDialogIsOpen}
-          onClose={this.handleCloseDialogEvent}
-          aria-labelledby='alert-dialog-title'
-          aria-describedby='alert-dialog-description'
-        >
-          <DialogTitle id='alert-dialog-title'>{"Use Google's location service?"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id='alert-dialog-description'>
-              Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={this.handleCloseDialogEvent} color='primary'>
-              Disagree
-            </Button>
-            <Button onClick={this.handleCloseDialogEvent} color='primary' autoFocus>
-              Agree
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <TimekeeperPeriodDialog ref={(ref) => (this.maxPeriodDialog = ref)} maxPeriod={this.state.maxPeriod}></TimekeeperPeriodDialog>
       </div>
     );
   }
 
-  componentDidMount() {
-    this.formatTimeLeft();
-  }
+  private openMaxPeriodDialog = () => {
+    this.maxPeriodDialog.open();
+  };
 
-  continueTimer() {
+  private continueTimer() {
     const that = this;
     const interval = setInterval(() => {
-      this.decreaseTimeLeft(that);
-      that.formatTimeLeft();
+      that.decreasePeriodLeft();
       that.updateCircleStrokeDasharray();
-      if (that.state.timeLeft == 0) {
+      if (that.state.periodLeft.isZero()) {
         this.setState({ circleClassName: 'timekeeper-circle timekeeper-circle-with-time-left-equals-to-zero' });
       }
     }, 1000);
     this.setState({ status: ETimekeeperStatus.RUNNING, interval });
   }
 
-  private decreaseTimeLeft(that: this) {
-    that.setState((previousState) => ({
-      timeLeft: previousState.timeLeft - 1,
+  private decreasePeriodLeft() {
+    this.setState((previousState) => ({
+      periodLeft: previousState.periodLeft.decrease(),
     }));
   }
 
@@ -140,28 +109,13 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
 
   resetTimer() {
     clearInterval(this.state.interval);
-    this.setState({ timeLeft: this.state.maxTime, circleClassName: 'timekeeper-circle' });
+    this.setState({ periodLeft: this.state.maxPeriod.clone(), circleClassName: 'timekeeper-circle' });
     this.continueTimer();
   }
 
-  private formatTimeLeft() {
-    const minutes = Math.floor(Math.abs(this.state.timeLeft) / 60);
-    const seconds = Math.floor(Math.abs(this.state.timeLeft) % 60);
-    const secondsAsString = seconds < 10 ? `0${seconds}` : `${seconds}`;
-    const sign = this.state.timeLeft < 0 ? '+' : '';
-    this.setState({ timeLeftAsText: `${sign}${minutes}:${secondsAsString}` });
-  }
-
   private updateCircleStrokeDasharray() {
-    const remainingCircleDasharray = `${(this.calculateTimeFraction() * FULL_DASH_ARRAY).toFixed(0)} ${FULL_DASH_ARRAY}`;
+    const periodLeftPercentage = this.state.periodLeft.getPercentageOf(this.state.maxPeriod);
+    const remainingCircleDasharray = `${(periodLeftPercentage * CIRCLE_FULL_DASH_ARRAY).toFixed(0)} ${CIRCLE_FULL_DASH_ARRAY}`;
     this.setState({ remainingCircleDasharray });
-  }
-
-  private calculateTimeFraction(): number {
-    if (this.state.timeLeft === 0) return 0;
-    const maxTime = this.state.timeLeft < 0 ? 200 : this.state.maxTime;
-    const rawTimeFraction = Math.abs(this.state.timeLeft) / maxTime;
-    const res = rawTimeFraction - (1 / maxTime) * (1 - rawTimeFraction);
-    return res;
   }
 }

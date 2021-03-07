@@ -1,0 +1,121 @@
+:root {
+}
+.timekeeper-period-dialog-container {
+  & .timekeeper-background {
+    height: 100%;
+    padding-top: 6rem;
+  }
+
+  & .timekeeper-forehand {
+    box-shadow: rgba(13, 43, 90, 0.04) 0px 4px 4px 0px, rgba(13, 43, 90, 0.08) 0px 8px 32px 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 36rem;
+    margin: 0 auto;
+    padding: 3rem;
+    border-radius: 0.3rem;
+  }
+
+  & .timekeeper-header {
+    margin-bottom: 3rem;
+    text-align: center;
+    font-size: 2.8rem;
+    font-weight: 400;
+  }
+
+  & .timekeeper-circle {
+    --circle-size: 30rem;
+    width: var(--circle-size);
+    height: var(--circle-size);
+    position: relative;
+    cursor: pointer;
+  }
+
+  & .timekeeper-svg {
+    transform: scaleX(-1);
+  }
+
+  & .timekeeper-svg-circle {
+    fill: none;
+    stroke: none;
+  }
+
+  & .timekeeper-svg-circle-full-path {
+    stroke-width: 0.5rem;
+    stroke: rgb(230, 230, 230);
+  }
+
+  & .timekeeper-svg-circle-remaining-path {
+    stroke-width: 0.5rem;
+    stroke-linecap: round;
+    transform: rotate(90deg);
+    transform-origin: center;
+    transition: 1s linear all;
+    fill-rule: nonzero;
+    stroke: currentColor;
+    color: #4b8ae7;
+  }
+
+  & .timekeeper-circle-label {
+    width: var(--circle-size);
+    height: var(--circle-size);
+    position: absolute;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 100;
+    font-size: 75px;
+    transition: 1s linear all;
+  }
+
+  & .timekeeper-circle-with-time-left-equals-to-zero {
+    & .timekeeper-circle-label {
+      color: #fe4a66;
+    }
+    & .timekeeper-svg-circle-remaining-path {
+      color: #fe4a66;
+    }
+  }
+
+  & .timekeeper-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2.5rem;
+    column-gap: 2rem;
+  }
+
+  & .timekeeper-buttons .iconify {
+    font-size: 4.7rem;
+    border-radius: 100rem;
+    background: #4b8ae7;
+    color: white;
+    padding: 0.8rem;
+    transition: var(--transition);
+    transition-property: opacity;
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    &.reset-button {
+      background: #cecece;
+    }
+  }
+
+  @media screen and (max-width: 426px) {
+    & .timekeeper-circle {
+      --circle-size: 25rem;
+    }
+
+    & .timekeeper-forehand {
+      box-shadow: none;
+    }
+
+    & .timekeeper-background {
+      padding-top: 4rem;
+    }
+  }
+}
