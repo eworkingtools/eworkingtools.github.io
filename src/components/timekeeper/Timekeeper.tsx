@@ -37,32 +37,39 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
   public render() {
     return (
       <div className='timekeeper-container'>
-        <svg className='timekeeper-svg' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'>
-          <g className='timekeeper-circle'>
-            <circle className='timekeeper-circle-full-path' cx='50' cy='50' r='45'></circle>
-            <path
-              className='timekeeper-circle-remaining-path'
-              stroke-dasharray={this.state.remainingCircleDasharray}
-              d='
-                  M 50, 50
-                  m -45, 0
-                  a 45,45 0 1,0 90,0
-                  a 45,45 0 1,0 -90,0
-                '
-            ></path>
-          </g>
-        </svg>
-        <span className='timekeeper-label'>{this.state.timeLeftAsText}</span>
-        <div className='timekeeper-buttons'>
-          <span className={this.state.status == ETimekeeperStatus.RUNNING ? 'hide' : ''} onClick={() => this.continueTimer()}>
-            <span className='iconify pointer' data-icon='fluent:play-48-regular' data-inline='false'></span>
-          </span>
-          <span className={this.state.status == ETimekeeperStatus.PAUSED ? 'hide' : ''} onClick={() => this.pauseTimer()}>
-            <span className='iconify pointer' data-icon='akar-icons:pause' data-inline='false'></span>
-          </span>
-          <span onClick={() => this.resetTimer()}>
-            <span className='iconify pointer reset-button' data-icon='grommet-icons:power-reset' data-inline='false'></span>
-          </span>
+        <div className='timekeeper-background'>
+          <div className='timekeeper-forehand'>
+            <h1 className='timekeeper-header'>Time Keeper</h1>
+            <div className='timekeeper-circle'>
+              <svg className='timekeeper-svg' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'>
+                <g className='timekeeper-svg-circle'>
+                  <circle className='timekeeper-svg-circle-full-path' cx='50' cy='50' r='45'></circle>
+                  <path
+                    className='timekeeper-svg-circle-remaining-path'
+                    stroke-dasharray={this.state.remainingCircleDasharray}
+                    d='
+                        M 50, 50
+                        m -45, 0
+                        a 45,45 0 1,0 90,0
+                        a 45,45 0 1,0 -90,0
+                      '
+                  ></path>
+                </g>
+              </svg>
+              <span className='timekeeper-circle-label'>{this.state.timeLeftAsText}</span>
+            </div>
+            <div className='timekeeper-buttons'>
+              <span className={this.state.status == ETimekeeperStatus.RUNNING ? 'hide' : ''} onClick={() => this.continueTimer()}>
+                <span className='iconify pointer' data-icon='fluent:play-48-regular' data-inline='false'></span>
+              </span>
+              <span className={this.state.status == ETimekeeperStatus.PAUSED ? 'hide' : ''} onClick={() => this.pauseTimer()}>
+                <span className='iconify pointer' data-icon='akar-icons:pause' data-inline='false'></span>
+              </span>
+              <span onClick={() => this.resetTimer()}>
+                <span className='iconify pointer reset-button' data-icon='grommet-icons:power-reset' data-inline='false'></span>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     );
