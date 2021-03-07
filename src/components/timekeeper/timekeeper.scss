@@ -49,6 +49,7 @@
     align-items: center;
     justify-content: center;
     margin-top: 1rem;
+    column-gap: 1.5rem;
   }
 
   & .timekeeper-buttons .iconify {
@@ -62,6 +63,10 @@
 
     &:hover {
       opacity: 0.8;
+    }
+
+    &.reset-button {
+      background: #cecece;
     }
   }
 }

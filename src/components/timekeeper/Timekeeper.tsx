@@ -54,6 +54,9 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
           <span className={this.state.state == ETimekeeperState.PAUSED ? 'hide' : ''} onClick={() => this.pauseTimer()}>
             <span className='iconify pointer' data-icon='akar-icons:pause' data-inline='false'></span>
           </span>
+          <span onClick={() => this.resetTimer()}>
+            <span className='iconify pointer reset-button' data-icon='grommet-icons:power-reset' data-inline='false'></span>
+          </span>
         </div>
       </div>
     );
@@ -81,6 +84,12 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
   pauseTimer() {
     this.setState({ ...this.state, state: ETimekeeperState.PAUSED });
     clearInterval(this.timekeeperInterval);
+  }
+
+  resetTimer() {
+    clearInterval(this.timekeeperInterval);
+    this.timeLeft = this.maxTime;
+    this.continueTimer();
   }
 
   private formatTimeLeft() {
