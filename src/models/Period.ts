@@ -24,7 +24,7 @@ export class Period {
 
   getMinutesAsString(): string {
     const minutes = this.getMinutes();
-    return minutes < 9 ? `0${minutes}` : `${minutes}`;
+    return minutes < 10 ? `0${minutes}` : `${minutes}`;
   }
 
   getSeconds(): number {

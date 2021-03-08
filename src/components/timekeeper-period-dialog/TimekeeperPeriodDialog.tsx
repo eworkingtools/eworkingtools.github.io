@@ -42,7 +42,7 @@ export default class TimekeeperPeriodDialog extends React.Component<ITimekeeperP
         aria-labelledby='alert-dialog-title'
         aria-describedby='alert-dialog-description'
       >
-        <DialogTitle id='alert-dialog-title'>Period</DialogTitle>
+        <DialogTitle id='alert-dialog-title'>Change TimeKeeper Period</DialogTitle>
         <DialogContent>
           <div className='period-grid'>
             <span className='period-grid-item period-grid-item-icon pointer' onClick={() => this.varyMinutes(1)}>
@@ -83,32 +83,70 @@ export default class TimekeeperPeriodDialog extends React.Component<ITimekeeperP
   }
 
   componentDidMount() {
-    document.addEventListener('keyup', this.handleKeyUpEvent);
+    document.addEventListener('keyup', this.handleNumericKeyupEvent);
+    document.addEventListener('keyup', this.handleArrowsKeyupEvent);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keyup', this.handleKeyUpEvent);
+    document.removeEventListener('keyup', this.handleNumericKeyupEvent);
+    document.removeEventListener('keyup', this.handleArrowsKeyupEvent);
   }
 
-  private handleKeyUpEvent = (event) => {
+  private handleArrowsKeyupEvent = (event) => {
+    if (!this.state.open) return;
+    if ('ArrowLeft' === event.key) {
+      this.setState({
+        minutesClassNames: 'period-grid-item period-minutes-seconds pointer active',
+        secondsClassNames: 'period-grid-item period-minutes-seconds pointer',
+      });
+    }
+    if ('ArrowRight' === event.key) {
+      this.setState({
+        minutesClassNames: 'period-grid-item period-minutes-seconds pointer',
+        secondsClassNames: 'period-grid-item period-minutes-seconds pointer active',
+      });
+    }
+    if ('ArrowUp' === event.key && this.state.minutesClassNames.includes('active')) {
+      this.setState((prevState) => ({
+        period: prevState.period.varyMinutes(1),
+      }));
+    }
+    if ('ArrowUp' === event.key && this.state.secondsClassNames.includes('active')) {
+      this.setState((prevState) => ({
+        period: prevState.period.varySeconds(1),
+      }));
+    }
+    if ('ArrowDown' === event.key && this.state.minutesClassNames.includes('active')) {
+      this.setState((prevState) => ({
+        period: prevState.period.varyMinutes(-1),
+      }));
+    }
+    if ('ArrowDown' === event.key && this.state.secondsClassNames.includes('active')) {
+      this.setState((prevState) => ({
+        period: prevState.period.varySeconds(-1),
+      }));
+    }
+  };
+
+  private handleNumericKeyupEvent = (event) => {
     if (!this.state.open) return;
     const digitMatch = event.code.match(/Digit(\d)/);
-    if (digitMatch) {
-      const digit = parseInt(digitMatch[1]);
-      if (this.state.minutesClassNames.includes('active')) {
-        const typedMinutes = this.state.typedMinutes ? this.state.typedMinutes.append(digit) : new TypedSecondsOrMinutes(digit);
-        this.setState((prevState) => ({
-          period: prevState.period.setMinutes(typedMinutes.getValue()),
-          typedMinutes,
-        }));
-      }
-      if (this.state.secondsClassNames.includes('active')) {
-        const typedSeconds = this.state.typedSeconds ? this.state.typedSeconds.append(digit) : new TypedSecondsOrMinutes(digit);
-        this.setState((prevState) => ({
-          period: prevState.period.setSecondsRemainder60(typedSeconds.getValue()),
-          typedSeconds,
-        }));
-      }
+    if (!digitMatch) return;
+
+    const digit = parseInt(digitMatch[1]);
+    if (this.state.minutesClassNames.includes('active')) {
+      const typedMinutes = this.state.typedMinutes ? this.state.typedMinutes.append(digit) : new TypedSecondsOrMinutes(digit);
+      this.setState((prevState) => ({
+        period: prevState.period.setMinutes(typedMinutes.getValue()),
+        typedMinutes,
+      }));
+    }
+    if (this.state.secondsClassNames.includes('active')) {
+      const typedSeconds = this.state.typedSeconds ? this.state.typedSeconds.append(digit) : new TypedSecondsOrMinutes(digit);
+      this.setState((prevState) => ({
+        period: prevState.period.setSecondsRemainder60(typedSeconds.getValue()),
+        typedSeconds,
+      }));
     }
   };
 
