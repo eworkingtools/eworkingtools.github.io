@@ -11,7 +11,7 @@ export class Period {
 
   getSecondsRemainder60AsString(): string {
     const seconds = this.getSecondsRemainder60();
-    return seconds < 9 ? `0${seconds}` : `${seconds}`;
+    return seconds < 10 ? `0${seconds}` : `${seconds}`;
   }
 
   getMinutes(): number {
