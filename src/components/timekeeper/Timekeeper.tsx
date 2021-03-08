@@ -1,7 +1,7 @@
 import './timekeeper.scss';
 import * as React from 'react';
 import { Period } from '../../models/Period';
-import TimekeeperPeriodDialog from '../timekeeper-maxtime-dialog/TimekeeperPeriodDialog';
+import TimekeeperPeriodDialog from '../timekeeper-period-dialog/TimekeeperPeriodDialog';
 
 export interface ITimekeeperProps {}
 
@@ -75,10 +75,18 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
             </div>
           </div>
         </div>
-        <TimekeeperPeriodDialog ref={(ref) => (this.maxPeriodDialog = ref)} maxPeriod={this.state.maxPeriod}></TimekeeperPeriodDialog>
+        <TimekeeperPeriodDialog
+          ref={(ref) => (this.maxPeriodDialog = ref)}
+          period={this.state.maxPeriod}
+          onPeriodChange={this.handlePeriodChange}
+        ></TimekeeperPeriodDialog>
       </div>
     );
   }
+
+  private handlePeriodChange = (period: Period) => {
+    this.setState({ ...INITIAL_STATE, maxPeriod: period, periodLeft: period });
+  };
 
   private openMaxPeriodDialog = () => {
     this.maxPeriodDialog.open();
@@ -98,7 +106,7 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
 
   private decreasePeriodLeft() {
     this.setState((previousState) => ({
-      periodLeft: previousState.periodLeft.decrease(),
+      periodLeft: previousState.periodLeft.varySeconds(-1),
     }));
   }
 
