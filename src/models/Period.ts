@@ -5,6 +5,10 @@ export class Period {
     return Math.floor(Math.abs(this.seconds) % 60);
   }
 
+  setSecondsRemainder60(seconds: number): Period {
+    return new Period(this.getMinutes() * 60 + seconds);
+  }
+
   getSecondsRemainder60AsString(): string {
     const seconds = this.getSecondsRemainder60();
     return seconds < 9 ? `0${seconds}` : `${seconds}`;
@@ -12,6 +16,10 @@ export class Period {
 
   getMinutes(): number {
     return Math.floor(Math.abs(this.seconds) / 60);
+  }
+
+  setMinutes(minutes: number): Period {
+    return new Period(minutes * 60 + this.getSecondsRemainder60());
   }
 
   getMinutesAsString(): string {

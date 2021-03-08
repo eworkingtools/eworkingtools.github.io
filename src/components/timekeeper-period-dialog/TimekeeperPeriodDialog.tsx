@@ -2,6 +2,7 @@ import './timekeeper-period-dialog.scss';
 import * as React from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
 import { Period } from '../../models/Period';
+import { TypedSecondsOrMinutes } from '../../models/TypedSecondsOrMinutes';
 
 export interface ITimekeeperPeriodDialogProps {
   period: Period;
@@ -11,8 +12,10 @@ export interface ITimekeeperPeriodDialogProps {
 export interface ITimekeeperPeriodDialogState {
   open: boolean;
   period: Period;
-  periodMinutesClassNames: string;
-  periodSecondsClassNames: string;
+  minutesClassNames: string;
+  secondsClassNames: string;
+  typedSeconds?: TypedSecondsOrMinutes;
+  typedMinutes?: TypedSecondsOrMinutes;
 }
 
 export default class TimekeeperPeriodDialog extends React.Component<ITimekeeperPeriodDialogProps, ITimekeeperPeriodDialogState> {
@@ -21,8 +24,8 @@ export default class TimekeeperPeriodDialog extends React.Component<ITimekeeperP
     this.state = {
       open: false,
       period: props.period.clone(),
-      periodMinutesClassNames: 'period-grid-item period-minutes-seconds pointer active',
-      periodSecondsClassNames: 'period-grid-item period-minutes-seconds pointer',
+      minutesClassNames: 'period-grid-item period-minutes-seconds pointer active',
+      secondsClassNames: 'period-grid-item period-minutes-seconds pointer',
     };
   }
 
@@ -50,11 +53,11 @@ export default class TimekeeperPeriodDialog extends React.Component<ITimekeeperP
               <span className='iconify' data-icon='eva:arrow-ios-upward-fill' data-inline='false'></span>
             </span>
 
-            <span className={this.state.periodMinutesClassNames} onClick={this.activateMinutes}>
+            <span className={this.state.minutesClassNames} onClick={this.activateMinutes}>
               {this.state.period.getMinutesAsString()}
             </span>
             <span className='period-grid-item period-minutes-seconds-separator'>:</span>
-            <span className={this.state.periodSecondsClassNames} onClick={this.activateSeconds}>
+            <span className={this.state.secondsClassNames} onClick={this.activateSeconds}>
               {this.state.period.getSecondsRemainder60AsString()}
             </span>
 
@@ -79,8 +82,38 @@ export default class TimekeeperPeriodDialog extends React.Component<ITimekeeperP
     );
   }
 
+  componentDidMount() {
+    document.addEventListener('keyup', this.handleKeyUpEvent);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keyup', this.handleKeyUpEvent);
+  }
+
+  private handleKeyUpEvent = (event) => {
+    if (!this.state.open) return;
+    const digitMatch = event.code.match(/Digit(\d)/);
+    if (digitMatch) {
+      const digit = parseInt(digitMatch[1]);
+      if (this.state.minutesClassNames.includes('active')) {
+        const typedMinutes = this.state.typedMinutes ? this.state.typedMinutes.append(digit) : new TypedSecondsOrMinutes(digit);
+        this.setState((prevState) => ({
+          period: prevState.period.setMinutes(typedMinutes.getValue()),
+          typedMinutes,
+        }));
+      }
+      if (this.state.secondsClassNames.includes('active')) {
+        const typedSeconds = this.state.typedSeconds ? this.state.typedSeconds.append(digit) : new TypedSecondsOrMinutes(digit);
+        this.setState((prevState) => ({
+          period: prevState.period.setSecondsRemainder60(typedSeconds.getValue()),
+          typedSeconds,
+        }));
+      }
+    }
+  };
+
   private handleCancelButtonClickEvent = () => {
-    this.setState({ open: false });
+    this.setState({ open: false, period: this.props.period.clone() });
   };
 
   private handleOkButtonClickEvent = () => {
@@ -91,30 +124,30 @@ export default class TimekeeperPeriodDialog extends React.Component<ITimekeeperP
   private varyMinutes = (amount: number) => {
     this.setState((prevState) => ({
       period: prevState.period.varyMinutes(amount),
-      periodMinutesClassNames: 'period-grid-item period-minutes-seconds pointer active',
-      periodSecondsClassNames: 'period-grid-item period-minutes-seconds pointer',
+      minutesClassNames: 'period-grid-item period-minutes-seconds pointer active',
+      secondsClassNames: 'period-grid-item period-minutes-seconds pointer',
     }));
   };
 
   private varySeconds = (amount: number) => {
     this.setState((prevState) => ({
       period: prevState.period.varySeconds(amount),
-      periodMinutesClassNames: 'period-grid-item period-minutes-seconds pointer',
-      periodSecondsClassNames: 'period-grid-item period-minutes-seconds pointer active',
+      minutesClassNames: 'period-grid-item period-minutes-seconds pointer',
+      secondsClassNames: 'period-grid-item period-minutes-seconds pointer active',
     }));
   };
 
   private activateMinutes = () => {
     this.setState({
-      periodMinutesClassNames: 'period-grid-item period-minutes-seconds pointer active',
-      periodSecondsClassNames: 'period-grid-item period-minutes-seconds pointer',
+      minutesClassNames: 'period-grid-item period-minutes-seconds pointer active',
+      secondsClassNames: 'period-grid-item period-minutes-seconds pointer',
     });
   };
 
   private activateSeconds = () => {
     this.setState({
-      periodMinutesClassNames: 'period-grid-item period-minutes-seconds pointer',
-      periodSecondsClassNames: 'period-grid-item period-minutes-seconds pointer active',
+      minutesClassNames: 'period-grid-item period-minutes-seconds pointer',
+      secondsClassNames: 'period-grid-item period-minutes-seconds pointer active',
     });
   };
 }
