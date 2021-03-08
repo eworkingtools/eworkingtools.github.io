@@ -42,11 +42,11 @@ export default class TimekeeperPeriodDialog extends React.Component<ITimekeeperP
         <DialogTitle id='alert-dialog-title'>Period</DialogTitle>
         <DialogContent>
           <div className='period-grid'>
-            <span className='period-grid-item pointer' onClick={() => this.varyMinutes(1)}>
+            <span className='period-grid-item period-grid-item-icon pointer' onClick={() => this.varyMinutes(1)}>
               <span className='iconify' data-icon='eva:arrow-ios-upward-fill' data-inline='false'></span>
             </span>
             <span className='period-grid-item'></span>
-            <span className='period-grid-item pointer' onClick={() => this.varySeconds(1)}>
+            <span className='period-grid-item period-grid-item-icon pointer' onClick={() => this.varySeconds(1)}>
               <span className='iconify' data-icon='eva:arrow-ios-upward-fill' data-inline='false'></span>
             </span>
 
@@ -58,11 +58,11 @@ export default class TimekeeperPeriodDialog extends React.Component<ITimekeeperP
               {this.state.period.getSecondsRemainder60AsString()}
             </span>
 
-            <span className='period-grid-item pointer' onClick={() => this.varyMinutes(-1)}>
+            <span className='period-grid-item period-grid-item-icon pointer' onClick={() => this.varyMinutes(-1)}>
               <span className='iconify' data-icon='eva:arrow-ios-downward-fill' data-inline='false'></span>
             </span>
             <span className='period-grid-item'></span>
-            <span className='period-grid-item pointer' onClick={() => this.varySeconds(-1)}>
+            <span className='period-grid-item period-grid-item-icon pointer' onClick={() => this.varySeconds(-1)}>
               <span className='iconify' data-icon='eva:arrow-ios-downward-fill' data-inline='false'></span>
             </span>
           </div>
