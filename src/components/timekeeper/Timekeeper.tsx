@@ -70,7 +70,7 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
                 <span className='iconify pointer' data-icon='akar-icons:pause' data-inline='false'></span>
               </span>
               <span onClick={() => this.resetTimer()}>
-                <span className='iconify pointer reset-button' data-icon='grommet-icons:power-reset' data-inline='false'></span>
+                <span className='iconify pointer reset-button' data-icon='system-uicons:reset' data-inline='false'></span>
               </span>
             </div>
           </div>
