@@ -84,7 +84,10 @@
     align-items: center;
     justify-content: center;
     margin-top: 2.5rem;
-    column-gap: 2rem;
+
+    & > * {
+      margin: 0 1rem;
+    }
   }
 
   & .timekeeper-buttons .iconify {
