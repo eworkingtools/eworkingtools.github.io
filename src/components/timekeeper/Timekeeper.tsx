@@ -12,6 +12,7 @@ export interface ITimekeeperState {
   circleClassName: string;
   status: ETimekeeperStatus;
   interval: NodeJS.Timeout;
+  sound: HTMLAudioElement;
 }
 
 export enum ETimekeeperStatus {
@@ -28,6 +29,7 @@ const INITIAL_STATE: ITimekeeperState = {
   remainingCircleDasharray: `${CIRCLE_FULL_DASH_ARRAY} ${CIRCLE_FULL_DASH_ARRAY}`,
   status: ETimekeeperStatus.PAUSED,
   interval: null,
+  sound: new Audio('/sound.mp3'),
 };
 
 export default class Timekeeper extends React.Component<ITimekeeperProps, ITimekeeperState> {
@@ -98,6 +100,7 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
       that.decreasePeriodLeft();
       that.updateCircleStrokeDasharray();
       if (that.state.periodLeft.isZero()) {
+        this.state.sound.play();
         this.setState({ circleClassName: 'timekeeper-circle timekeeper-circle-with-time-left-equals-to-zero' });
       }
     }, 1000);
@@ -111,11 +114,15 @@ export default class Timekeeper extends React.Component<ITimekeeperProps, ITimek
   }
 
   pauseTimer() {
+    this.state.sound.pause();
+    this.state.sound.currentTime = 0;
     this.setState({ status: ETimekeeperStatus.PAUSED });
     clearInterval(this.state.interval);
   }
 
   resetTimer() {
+    this.state.sound.pause();
+    this.state.sound.currentTime = 0;
     clearInterval(this.state.interval);
     this.setState({ periodLeft: this.state.maxPeriod.clone(), circleClassName: 'timekeeper-circle' });
     this.continueTimer();
